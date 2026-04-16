@@ -21,7 +21,7 @@ namespace EposNow.Models
                 {
                     try
                     {
-                        /*if (posDetail.StoreSettings.StoreId == 11083)
+                        /*if (posDetail.StoreSettings.StoreId == 13017 || posDetail.StoreSettings.StoreId == 13018)
                         {
                             Console.WriteLine("Fetching storeId : " + posDetail.StoreSettings.StoreId);
                         }

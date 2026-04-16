@@ -18,7 +18,7 @@ namespace EposNow.Models
             try
             {
                 List<SqlParameter> sparams = new List<SqlParameter>();
-                sparams.Add(new SqlParameter("@PosId", 46));
+               sparams.Add(new SqlParameter("@PosId", 46));
 
                 string connectionString = ConfigurationManager.AppSettings.Get("LiquorAppsConnectionString");
                 using (SqlConnection connection = new SqlConnection(connectionString))
