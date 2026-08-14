@@ -21,14 +21,14 @@ namespace EposNow.Models
                 {
                     try
                     {
-                        /*if (posDetail.StoreSettings.StoreId == 13017 || posDetail.StoreSettings.StoreId == 13018)
-                        {
-                            Console.WriteLine("Fetching storeId : " + posDetail.StoreSettings.StoreId);
-                        }
-                        else
-                        {
-                            continue;
-                        }*/
+                        //if (posDetail.StoreSettings.StoreId == 13017)
+                        //{
+                        //    Console.WriteLine("Fetching storeId : " + posDetail.StoreSettings.StoreId);
+                        //}
+                        //else
+                        //{
+                        //    continue;
+                        //}
                         if (posDetail.PosName.ToUpper() == "EPOSNOW" && posDetail.StoreSettings.POSSettings.IsApi)
                         {
                             EposnowCsvProducts eposnowCsvProducts = new EposnowCsvProducts(posDetail.StoreSettings.StoreId, posDetail.StoreSettings.POSSettings.tax, posDetail.StoreSettings.POSSettings.BaseUrl, posDetail.StoreSettings.POSSettings.Token);

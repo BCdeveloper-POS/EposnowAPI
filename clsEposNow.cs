@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using EposNow;
+﻿using EposNow;
 using EposNow.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using RestSharp.Deserializers;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
 namespace EposNow.Models
 {
     public class clsEposNow
     {
         private string StoreId;
 
-        private int page = 1;
+
 
         private string AccessToken = "";
 
@@ -31,36 +34,61 @@ namespace EposNow.Models
         }
 
         //method for productdetails
+        #region hardcoded pagination
+        //public List<EposnowProdList.Root> EposnowSetting(int StoreId, decimal tax, string BaseUrl, string Token)
+        //{
+        //    List<EposnowProdList.Root> list = new List<EposnowProdList.Root>();
+        //    for (int i = 1; i <= 25; i++)
+        //    {
+        //        List<EposnowProdList.Root> list2 = EposNowProduct(i, StoreId, tax, BaseUrl, Token);
+        //        if (list2.Count != 0)
+        //        {
+        //            list.AddRange(list2);
+        //            continue;
+        //        }
+        //        break;
+        //    }
+        //    File.WriteAllText($"Products_response_{StoreId}.json" , JsonConvert.SerializeObject(list)); 
+        //    return list;
+        //}
+
+        #endregion
+        #region dynamic pagination  
         public List<EposnowProdList.Root> EposnowSetting(int StoreId, decimal tax, string BaseUrl, string Token)
         {
             List<EposnowProdList.Root> list = new List<EposnowProdList.Root>();
-            for (int i = 1; i <= 25; i++)
+
+            for (int page = 1; ; page++)
             {
-                List<EposnowProdList.Root> list2 = EposNowProduct(i, StoreId, tax, BaseUrl, Token);
-                if (list2.Count != 0)
-                {
-                    list.AddRange(list2);
-                    continue;
-                }
-                break;
+                List<EposnowProdList.Root> list2 = EposNowProduct(page, StoreId, tax, BaseUrl, Token);
+                if (list2 == null || list2.Count == 0) { break; }
+
+                list.AddRange(list2);
             }
+
+            File.WriteAllText($"Products_response_{StoreId}.json", JsonConvert.SerializeObject(list));
+
             return list;
         }
+
+        #endregion
+
 
         //method for stockdetails
         public List<EposnowStockList.Root> EposnowStockSetting(int StoreId, decimal tax, string BaseUrl, string Token)
         {
             List<EposnowStockList.Root> list = new List<EposnowStockList.Root>();
-            for (int i = 1; i <= 25; i++)
+           
+
+            for (int page = 1; ; page++)
             {
-                List<EposnowStockList.Root> list2 = EposNowStock(i, StoreId, tax, BaseUrl, Token);
-                if (list2.Count != 0)
-                {
-                    list.AddRange(list2);
-                    continue;
-                }
-                break;
+                List<EposnowStockList.Root> stklist = EposNowStock(page, StoreId, tax, BaseUrl, Token);
+                if (stklist == null || stklist.Count == 0) { break; }
+
+                list.AddRange(stklist);
             }
+
+            File.WriteAllText($"Stock_response_{StoreId}.json", JsonConvert.SerializeObject(list));
             return list;
         }
         // method for category saving 
@@ -68,15 +96,14 @@ namespace EposNow.Models
         {
             List<CatList> clist = new List<CatList>();
 
-            for (int i = 1; i <= 25; i++)
+         
+
+            for (int page = 1; ; page++)
             {
-                List<CatList> listc = EposNowCats(i, storeid, tax, BaseUrl, Token);
-                if (listc.Count != 0)
-                {
-                    clist.AddRange(listc);
-                    continue;
-                }
-                break;
+                List<CatList> listcat = EposNowCats(page, storeid, tax, BaseUrl, Token);
+                if (listcat == null || listcat.Count == 0) { break; }
+
+                clist.AddRange(listcat);
             }
             return clist;
         }
@@ -104,6 +131,7 @@ namespace EposNow.Models
                         NullValueHandling = NullValueHandling.Ignore
                     });
                     result = source.ToList();
+
                 }
                 catch (Exception ex)
                 {
@@ -112,6 +140,8 @@ namespace EposNow.Models
             }
             return result;
         }
+
+
 
         //method for stock api call  
         public List<EposnowStockList.Root> EposNowStock(int PageNo, int StoreId, decimal tax, string BaseUrl, string Token)
