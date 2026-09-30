@@ -15,11 +15,11 @@ namespace EposNow
         private string beercat = ConfigurationManager.AppSettings.Get("beer_cat");
         string Staticqty = ConfigurationManager.AppSettings.Get("Staticqty");
         string IncludeDeposit = ConfigurationManager.AppSettings.Get("IncludeDeposit");
-        public EposnowCsvProducts(int StoreId, decimal tax, string BaseUrl, string Token)
+        public EposnowCsvProducts(int StoreId, decimal tax, string BaseUrl, string Token, Config config)
         {
-            productForCSV(StoreId, tax, BaseUrl, Token);
+            productForCSV(StoreId, tax, BaseUrl, Token , config);
         }
-        public void productForCSV(int storeid, decimal tax, string BaseUrl, string Token)
+        public void productForCSV(int storeid, decimal tax, string BaseUrl, string Token, Config config)
         {
             try
             {
@@ -108,15 +108,30 @@ namespace EposNow
                         }
                         var qty = stocklist.FirstOrDefault(s => s.ProductId == prd.Id)?.ProductStockBatches?.FirstOrDefault()?.CurrentStock??0  ;
                         pdm.Qty = qty;
+
+                        // NEW - 2026-09-30 - Convert negative stock to positive when configured (DB Config)
+                        if (config.IsNegativeToPostiveQty && pdm.Qty < 0)
+                        {
+                            pdm.Qty = Math.Abs(pdm.Qty);
+                        }
+
                         if (Staticqty.Contains(storeid.ToString()))
                         {
-                            pdm.Qty = 999;   
+                            pdm.Qty = 999;
                         }
                         if (beercat.Contains(storeid.ToString()))
                         {
-                            if(prd.CategoryId == 565448)
+                            if (prd.CategoryId == 565448)
                                 pdm.Qty = 999;
                         }
+
+                        // NEW - 2026-09-30 - Static quantity override (DB Config)
+                        if (config.StaticQty > 0)
+                        {
+                            pdm.Qty = config.StaticQty;
+                        }
+                       
+
                         pdm.pack = getpack(prd.Name) ;
                         pdm.uom = GetVolume(prd.Name) ;
                         pdm.StoreProductName = prd.Name.ToString();
@@ -131,6 +146,33 @@ namespace EposNow
                         pdm.altupc4 = "";
                         pdm.altupc4 = "";
                         pdm.altupc5 = "";
+                        // NEW - 2026-09-30 - Deposit from DB Config (per pack when IsDepositByPack)
+                        if (config.Deposits > 0)
+                        {
+                            pdm.Deposit = config.Deposits;
+                            if (config.IsDepositByPack)
+                            {
+                                pdm.Deposit = config.Deposits * Convert.ToInt32(pdm.pack);
+                            }
+                        }
+                        // NEW - 2026-09-30 - Round up price to .49 / .99 (DB Config)
+                        if (config.IsRoundUp)
+                        {
+                            decimal price = pdm.Price;
+                            if (price > 0)
+                            {
+                                decimal whole = Math.Floor(price);
+                                decimal cents = price - whole;
+                                if (cents <= 0.49M)
+                                {
+                                    pdm.Price = whole + 0.49M;
+                                }
+                                else
+                                {
+                                    pdm.Price = whole + 0.99M;
+                                }
+                            }
+                        }
                         if (IncludeDeposit.Contains(storeid.ToString()))//Added by PK on 08/01/2025
                         {
                             var deposit = depositlist.FirstOrDefault(d => d.ContainerFeeId.Equals(prd.ContainerFeeId));
@@ -148,6 +190,14 @@ namespace EposNow
                         fnm.pcat2 = "";
                         fnm.country = "";
                         fnm.region = "";
+
+
+                        // NEW - 2026-09-30 - InStockOnly: skip out-of-stock items when configured (DB Config)
+                        if (config.InStockOnly && pdm.Qty <= 0)
+                        {
+                            continue;
+                        }
+
                         if (!string.IsNullOrEmpty(pdm.upc) && pdm.Price > 0m && pdm.Qty > 0)
                         {
                             list2.Add(pdm);

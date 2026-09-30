@@ -46,6 +46,18 @@ namespace EposNow.Models
                         pOSSetting.PosName = row["PosName"].ToString();
                         pOSSetting.PosId = Convert.ToInt32(row["PosId"]);
                         pOSSetting.StoreSettings = storeSetting;
+
+                        // Deserialize Config JSON
+
+                        if (row["Config"] != DBNull.Value && !string.IsNullOrWhiteSpace(row["Config"].ToString()))
+                        {
+                            pOSSetting.config = JsonConvert.DeserializeObject<Config>(row["Config"].ToString());
+                        }
+                        if (pOSSetting.config == null)
+                        {
+                            pOSSetting.config = new Config();
+                        }
+
                         if (pOSSetting.StoreSettings.POSSettings != null)
                         {
                             pOSSetting.StoreSettings.POSSettings.categoriess = storeSetting.POSSettings.categoriess;
@@ -78,6 +90,17 @@ namespace EposNow.Models
         public StoreSetting StoreSettings { get; set; }
 
         public string Setting { get; set; }
+
+        public Config config { get; set; }
+    }
+    public class Config
+    {
+        public int StaticQty { get; set; }
+        public bool IsNegativeToPostiveQty { get; set; }
+        public bool IsRoundUp { get; set; }
+        public decimal Deposits { get; set; }
+        public bool IsDepositByPack { get; set; }
+        public bool InStockOnly { get; set; }
     }
     public class Setting
     {

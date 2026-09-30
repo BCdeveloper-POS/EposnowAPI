@@ -31,7 +31,7 @@ namespace EposNow.Models
                         //}
                         if (posDetail.PosName.ToUpper() == "EPOSNOW" && posDetail.StoreSettings.POSSettings.IsApi)
                         {
-                            EposnowCsvProducts eposnowCsvProducts = new EposnowCsvProducts(posDetail.StoreSettings.StoreId, posDetail.StoreSettings.POSSettings.tax, posDetail.StoreSettings.POSSettings.BaseUrl, posDetail.StoreSettings.POSSettings.Token);
+                            EposnowCsvProducts eposnowCsvProducts = new EposnowCsvProducts(posDetail.StoreSettings.StoreId, posDetail.StoreSettings.POSSettings.tax, posDetail.StoreSettings.POSSettings.BaseUrl, posDetail.StoreSettings.POSSettings.Token, posDetail.config);
                             Console.WriteLine();
                         }
                     }

@@ -1,0 +1,16 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/EposNow/CopilotIndices/17.14.1577.30250
+/.vs/EposNow/FileContentIndex
+*.suo
+/.vs/EposNow/v17/DocumentLayout.backup.json
+*.json
+/bin/Debug/EposNow.exe
+/bin/Debug/EposNow.exe.config
+/bin/Debug/EposNow.pdb
+/bin/Debug/EposNow.exe
+/bin/Debug/EposNow.exe.config
+/bin/Debug/EposNow.pdb
+/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
